@@ -1,4 +1,11 @@
+# -----------------------------------------------------------------------------
+# Script: 01-firefox-dev.sh
+# Phase: Install
+# Requires: curl/wget, gpg, sudo
+# Behavior: Idempotent (parallel to default firefox)
+# -----------------------------------------------------------------------------
 #!/usr/bin/env bash
+
 set -e
 
 echo "==> Installing Firefox Developer Edition..."
@@ -53,7 +60,7 @@ else
   echo "==> Pinning already exists, skipping..."
 fi
 
-# Update only if repo was just added
+# Refresh APT package index
 echo "==> Updating APT..."
 sudo apt-get update
 
