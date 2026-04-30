@@ -1,12 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
 # -----------------------------------------------------------------------------
 # Script: 01-firefox-dev.sh
 # Phase: Install
 # Requires: curl/wget, gpg, sudo
 # Behavior: Idempotent (parallel to default firefox)
 # -----------------------------------------------------------------------------
-#!/usr/bin/env bash
-
-set -e
 
 echo "==> Installing Firefox Developer Edition..."
 
