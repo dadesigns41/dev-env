@@ -1,6 +1,14 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+# Uses env to locate bash via PATH for portability across systems (Ubuntu, WSL, Docker, minimal Linux distros)
 set -e
+
+# -----------------------------------------------------------------------------
+# Script: 05-openwhispr.sh
+# Phase: Install
+# Requires: wget, tar, nohup
+# Behavior: Idempotent
+# Notes: Installs and launches OpenWhispr (Electron app) with --no-sandbox
+# -----------------------------------------------------------------------------
 
 APP_NAME="OpenWhispr"
 APP_VERSION="1.7.0"
@@ -28,7 +36,8 @@ if [ ! -f "$BINARY" ]; then
     echo "Extracting..."
     tar -xzf "$ARCHIVE"
 
-    mv OpenWhispr-* "$APP_VERSION"
+    EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "OpenWhispr*" | head -n 1)
+    mv "$EXTRACTED_DIR" "$APP_VERSION"
 
     chmod +x "$BINARY"
 
@@ -38,6 +47,11 @@ else
 fi
 
 # ---- RUN (always safe) ----
+if [ ! -d "$APP_DIR" ]; then
+    echo "Error: install directory missing"
+    exit 1
+fi
+
 cd "$APP_DIR"
 
 nohup ./open-whispr --no-sandbox >/dev/null 2>&1 &
