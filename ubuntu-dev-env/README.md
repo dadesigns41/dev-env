@@ -96,11 +96,13 @@ Scripts should:
 
 ## Bootstrap Utilities
 
-Needed to make the machine usable and pull the dev environment repository.
+Bootstrap utilities required to establish a reproducible baseline environment.
+
+> Note: `git` is required one time initially to clone this repository, but is still included in `00-bootstrap.sh` to guarantee reproducibility and baseline consistency.
 
 | Program | Purpose |
 |----------|----------|
-| `git` | Pull dev-env repo first |
+| `git` | Repository cloning and version control |
 | `curl` | Install scripts / API requests |
 | `wget` | Downloads |
 | `ca-certificates` | SSL certificate trust store |
@@ -229,6 +231,17 @@ Mapped Script:
 
 # Usage
 
+## Fresh Ubuntu Install
+
+Install the minimal prerequisite required to clone the repository:
+
+```bash
+sudo apt update
+sudo apt install -y git
+```
+
+Clone and run the environment:
+
 ```bash
 git clone <repo>
 cd ubuntu-dev-environment
@@ -236,19 +249,23 @@ chmod +x install.sh
 ./install.sh
 ```
 
-```bash
+---
+
+# Project Structure
+
+```text
 ubuntu-dev-environment/        # Root folder: entire reproducible system
 
 ├── install.sh                 # PRIMARY ENTRY POINT (ONLY real entry)
 │                              # Think: "rebuild my machine from scratch"
 │                              # Calls 00-bootstrap.sh then 01-foundation.sh
 
-├── 00-bootstrap.sh           # Minimal survival layer
-│                              # Installs only essentials to run system
+├── 00-bootstrap.sh            # Minimal survival layer
+│                              # Establishes baseline system tooling
 │                              # Example: git, curl, wget, build tools
 │                              # Used by install.sh ONLY
 
-├── 01-foundation.sh          # SYSTEM ORCHESTRATOR (NOT an entry point)
+├── 01-foundation.sh           # SYSTEM ORCHESTRATOR (NOT an entry point)
 │                              # Runs category layers in correct order:
 │                              # 02-desktop-apps
 │                              # 03-dev-runtime
@@ -257,49 +274,45 @@ ubuntu-dev-environment/        # Root folder: entire reproducible system
 │
 │                              # IMPORTANT: does NOT install tools directly
 
-├── 02-desktop-apps.sh        # CATEGORY LAYER: GUI / daily apps
+├── 02-desktop-apps.sh         # CATEGORY LAYER: GUI / daily apps
 │                              # Groups desktop tools (browser, OBS, media)
 │                              # Calls scripts/ (firefox, obs, vlc, etc.)
 
-├── 03-dev-runtime.sh         # CATEGORY LAYER: programming runtimes
+├── 03-dev-runtime.sh          # CATEGORY LAYER: programming runtimes
 │                              # Node, Python, PHP, Composer, etc.
 
-├── 04-infra-tools.sh         # CATEGORY LAYER: infrastructure tooling
-│                              # SSH, tmux, nmap, dns tools, networking
+├── 04-infra-tools.sh          # CATEGORY LAYER: infrastructure tooling
+│                              # SSH, tmux, nmap, DNS/networking
 
-├── 05-optional.sh            # CATEGORY LAYER: optional tools
+├── 05-optional.sh             # CATEGORY LAYER: optional tools
 │                              # filezilla, rclone, gparted, etc.
 
-├── 99-audit.sh               # SYSTEM VERIFICATION (read-only layer)
+├── 99-audit.sh                # SYSTEM VERIFICATION (read-only layer)
 │                              # Checks installed tools
 │                              # Detects missing packages
 │                              # Validates system state
 
-│
-├── scripts/                  # IMPLEMENTATION LAYER (single responsibility)
-│                              # Each script installs ONE tool only
+├── scripts/                   # IMPLEMENTATION LAYER
+│                              # Single responsibility: one tool per script
 │
 │   ├── firefox-dev.sh
 │   ├── docker.sh
 │   ├── vscode.sh
 │   ├── obs.sh
 │   ├── bitwarden.sh
-│
-│
-├── lib/                      # SHARED LOGIC (reusable functions)
+
+├── lib/                       # SHARED LOGIC (reusable functions)
 │                              # No execution here
 │                              # Sourced by all scripts
 │
-│   └── common.sh             # install_if_missing, logging, helpers
-│
-│
-├── config/                   # OPTIONAL FUTURE DECLARATIVE LAYER
+│   └── common.sh              # install_if_missing, logging, helpers
+
+├── config/                    # OPTIONAL FUTURE DECLARATIVE LAYER
 │                              # Defines desired system state
 │
 │   ├── packages.json
 │   ├── versions.lock
-│
-│
-└── README.md                 # System documentation
+
+└── README.md                  # System documentation
                                # "How to rebuild my machine in 5 minutes"
-└── README.md```
+```
