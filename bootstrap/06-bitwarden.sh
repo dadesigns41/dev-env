@@ -1,43 +1,34 @@
 # -----------------------------------------------------------------------------
 # Script: 06-bitwarden.sh
 # Phase: Install
-# Requires: curl/wget, gpg, sudo
+# Requires: wget, sudo, apt
 # Behavior: Idempotent
-# Notes: Installs Bitwarden Desktop via official APT repository
+# Notes: Installs Bitwarden Desktop via official .deb installer (no APT repo)
 # -----------------------------------------------------------------------------
 #!/usr/bin/env bash
 
 set -e
 
-echo "Installing Bitwarden..."
+echo "Installing Bitwarden Desktop..."
 
-# Check if Bitwarden is already installed
+# Check if already installed
 if dpkg -s bitwarden >/dev/null 2>&1; then
     echo "Bitwarden already installed. Skipping."
     exit 0
 fi
 
-# Create keyring directory if missing
-sudo install -m 0755 -d /etc/apt/keyrings
+# Temp file location
+DEB_FILE="/tmp/bitwarden.deb"
 
-# Add Bitwarden GPG key if missing
-if [ ! -f /etc/apt/keyrings/bitwarden.gpg ]; then
-    curl -fsSL https://downloads.bitwarden.com/linux/keys/bitwarden.asc \
-        | gpg --dearmor \
-        | sudo tee /etc/apt/keyrings/bitwarden.gpg > /dev/null
-fi
+# Download latest .deb installer
+echo "Downloading Bitwarden .deb..."
+wget -q "https://bitwarden.com/download/?app=desktop&platform=linux&variant=deb" -O "$DEB_FILE"
 
-# Add repository if missing
-if [ ! -f /etc/apt/sources.list.d/bitwarden.list ]; then
-    echo \
-"deb [signed-by=/etc/apt/keyrings/bitwarden.gpg] https://downloads.bitwarden.com/linux/deb stable main" \
-        | sudo tee /etc/apt/sources.list.d/bitwarden.list > /dev/null
-fi
+# Install package via apt (handles dependencies properly)
+echo "Installing Bitwarden..."
+sudo apt install -y "$DEB_FILE"
 
-# Update package index
-sudo apt update
-
-# Install Bitwarden
-sudo apt install -y bitwarden
+# Cleanup
+rm -f "$DEB_FILE"
 
 echo "Bitwarden installation complete."
